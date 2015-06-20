@@ -2,9 +2,7 @@
 packages <- c("data.table", "reshape2", "dplyr")
 sapply(packages, require, character.only=TRUE, quietly=TRUE)
 
-# Assumes the Git repository : https://github.com/dholtz/GettingAndCleaningData
-# has been cloned to a users local machine, and the R, setwd(), has been used 
-# to set the working directory to the root of this cloned repository.
+# set the working directory to the root of this cloned repository.
 path <- getwd()
 
 # Give warning to set the working directory if not able to find data files.
@@ -23,16 +21,11 @@ dtTrainingActivity <- fread(file.path(projectDataPath, "train", "Y_train.txt"))
 dtTestActivity  <- fread(file.path(projectDataPath, "test" , "Y_test.txt" ))
 
 # Read in the 'Measurements' data
-# Switching to standard, read.table to avoid the following possible error:
-# https://github.com/Rdatatable/data.table/issues/487
-# No time to figure out where this, 'works again now' version is
 dtTrainingMeasures <- data.table(read.table(file.path(projectDataPath, "train", "X_train.txt")))
 dtTestMeasures  <- data.table(read.table(file.path(projectDataPath, "test" , "X_test.txt")))
 
 # Row merge the Training and Test Subjects
-# http://www.statmethods.net/management/merging.html
 dtSubjects <- rbind(dtTrainingSubjects, dtTestSubjects)
-# Why setnames() ?? http://stackoverflow.com/questions/10655438/rename-one-named-column-in-r
 setnames(dtSubjects, "V1", "subject")
 
 # Row merge the Training and Test Activities
@@ -50,8 +43,6 @@ dtSubjectAtvitiesWithMeasures <- cbind(dtSubjectActivities, dtMeasures)
 setkey(dtSubjectAtvitiesWithMeasures, subject, activityNumber)
 
 ## Read in the 'features.txt' 
-## This file matches up to the columns in the data.table, dtSubjectActivitiesWithMeasures
-## with the features/measures.
 dtAllFeatures <- fread(file.path(projectDataPath, "features.txt"))
 setnames(dtAllFeatures, c("V1", "V2"), c("measureNumber", "measureName"))
 
@@ -64,7 +55,7 @@ dtMeanStdMeasures$measureCode <- dtMeanStdMeasures[, paste0("V", measureNumber)]
 # Build up the columns to select from the data.table,
 # dtSubjectActivitiesWithMeasures
 columnsToSelect <- c(key(dtSubjectAtvitiesWithMeasures), dtMeanStdMeasures$measureCode)
-# Just take the rows with the columns of interest ( std() and mean() )
+# Take the rows with the columns of interest ( std() and mean() )
 dtSubjectActivitesWithMeasuresMeanStd <- subset(dtSubjectAtvitiesWithMeasures, 
                                                 select = columnsToSelect)
 
